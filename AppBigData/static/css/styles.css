@@ -1,0 +1,61 @@
+.navbar {
+	margin-bottom: 0px;
+}
+
+#container-map {
+	width: 98%;
+	height: 100%;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+#map {
+	height: 700px;
+}
+
+.tipos_markers {
+    padding-right: 5px;
+}
+
+
+#select_options {
+	border-left-width: 3px;
+	border-left-style: solid;
+	padding-left: 10px
+}
+
+.selected {
+	background-color: blue;
+	color: white;
+
+}
+
+#grafico {
+	display: none;
+	height: 700px;
+}
+
+#btn-grafico {
+	margin-left: 30px;
+}
+
+#genera_grafico {
+	display: none;
+}
+
+#cerrar {
+	margin-left: 85%;
+	margin-top: 5px;
+}
+
+#columnchart {
+	padding-top: 35px;
+}
+
+.navbar-nav .open .dropdown-menu {
+	background-color: white; 
+}
+
+.navbar-inverse .navbar-collapse, .navbar-inverse .navbar-form {
+	border-color: white;
+}

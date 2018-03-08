@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Mapa para big data\Localizacion de tweets</title>
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+	<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<link rel="stylesheet" type="text/css" href=" {{ url_for('static',filename='css/bootstrap.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="/static/css/styles.css?q=1280549780">
+
+	
+</head>
+<body>
+
+	<!-- this goes in the <body> -->
+
+	<nav class="navbar navbar-inverse">
+		<div class="container">
+		    <div class="navbar-header">
+		    	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+			        <span class="sr-only">Toggle navigation</span>
+			        <span class="icon-bar"></span>
+			        <span class="icon-bar"></span>
+			        <span class="icon-bar"></span>
+			      </button>
+		    	<a href="{{ url_for('index') }}" class="navbar-brand">Visualizacion de Datos Turisticos</a>
+		    </div>
+
+		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+			    <div class="nav navbar-nav">
+			    </div>
+			    <div class="nav navbar-nav navbar-right">
+			    	<li class="dropdown">
+			          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Menu de Opciones <span class="caret"></span></a>
+			          <ul class="dropdown-menu">
+
+			          	<div id="genera_grafico">
+			          		<input type="button" class="btn btn-success btn-xs" onClick="generarGrafico();" id="btn-grafico" value="Generar Grafico">		            
+			            	<li role="separator" class="divider"></li>
+			          	</div>
+			           	
+			            <form class="navbar-form" >
+
+				    		<p>Selecciona marcadores: </p>
+				    		<div class="form-group sentiment_checkbox">
+				    			<label>
+							      <input type="checkbox" id="positive"> Positivos
+							    </label>
+							    <label>
+							      <input type="checkbox" id="neutral"> Neutrales
+							    </label>
+							    <label>
+							      <input type="checkbox" id="negative"> Negativos
+							    </label>
+							    
+				    		</div>
+				    		<div class="form-group tipos_markers">
+				    			
+				    			<input type="button" class="btn btn-default btn-xs" onClick="validarMarker(this.id);" id="all" value="Todos">	 
+				    			<input type="button" class="btn btn-default btn-xs" onClick="validarMarker(this.id);" id="CDMX" value="CDMX">
+				    			<input type="button" class="btn btn-default btn-xs" onClick="validarMarker(this.id);" id="Jalisco" value="Jalisco">
+				    			<input type="button" class="btn btn-default btn-xs" onClick="validarMarker(this.id);" id="Quintanaroo" value="QuintanaRoo">
+				    			<input type="button" class="btn btn-default btn-xs" onClick="validarMarker(this.id);" id="NuevoLeon" value="Nuevo Leon">
+				    			<input type="button" class="btn btn-default btn-xs" onClick="validarMarker(this.id);" id="Guerrero" value="Guerrero">
+				    		</div>
+				    		
+				    	</form>
+			          </ul>
+			        </li>
+			    	
+			    </div>
+			</div>
+	    </div>
+	</nav>
+	<div class="container" id="container-map">
+		<div class="row">
+			<div class="col-lg-12" id="col_map">
+				<div id="map""></div>
+			</div>
+			<div class="col-lg-5">
+				<div id="grafico">
+					<input type="button" onClick="closeDiv();" class='btn btn-danger btn-xs' id="cerrar" value="X">
+					<div id='columnchart'></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	<script>
+
+		
+		// Load the tile images from OpenStreetMap
+		var mytiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+		    maxZoom: 10
+		});
+		// Initialise an empty map
+		var map = L.map('map');
+		var format_data = undefined;
+
+		// Read the GeoJSON data with jQuery, and create a circleMarker element for each tweet
+		// Each tweet will be represented by a nice red dot
+		var geojson = new L.geoJson(null, {
+			pointToLayer: function(feature, latlng){
+				switch (feature.polarity) {
+					case 'positive': 
+						var positiveStyle = {
+					    	radius: 6,
+					        fillColor: "green",
+					        color: "white",
+					        weight: 1,
+						        opacity: 1,
+						        fillOpacity: 1
+						 };
+						 
+						return L.circleMarker(latlng, positiveStyle)
+							.bindPopup('<h4>Tweet: </h4>'+'<small>'+feature.text+' '+feature.created_at+'</small>');	
+
+					case 'negative':
+						var negativeStyle = {
+								radius: 6,
+						        fillColor: "red",
+						        color: "red",
+						        weight: 1,
+						        opacity: 1,
+						        fillOpacity:1	
+						 };
+						 return L.circleMarker(latlng, negativeStyle)
+							.bindPopup('<h4>Tweet: </h4>'+'<small>'+feature.text+' '+feature.created_at+'</small>');	
+
+					case 'neutral':
+						var neutralStyle = {
+								radius: 6,
+						        fillColor: "blue",
+						        color: "white",
+						        weight: 1,
+						        opacity: 1,
+						        fillOpacity: 1
+						};
+						return L.circleMarker(latlng, neutralStyle)
+					.bindPopup('<h4>Tweet: </h4>'+'<small>'+feature.text+' '+feature.created_at+'</small>');
+				}	
+			}
+		});
+		
+		geojson.addTo(map);
+
+		
+		var arrayCheck = new Array();	
+		$('input[type=checkbox]').on('change',function(e){
+						console.log("on change");
+						
+			if ($(this).is(':checked') ) {
+				arrayCheck.push($(this).prop("id"));
+				for(var i = 0; i<arrayCheck.length ; i++){
+					
+					if (arrayCheck[i] == $(this).prop("id")) {
+						console.log("Se selecciono: " +  arrayCheck[i]);
+					}
+					console.log("Elemento arrayCheck: "+arrayCheck[i]);
+				}
+				
+			}else {
+				if (!$.isEmptyObject(arrayCheck)) {
+					for(var i = 0; i<arrayCheck.length ; i++){
+						
+						if (arrayCheck[i] == $(this).prop("id")) {
+							arrayCheck.splice(i, 1);
+							//alert("Se deselecciono: " +  arrayCheck[i]);
+						}
+						console.log("Elemento arrayCheck: "+arrayCheck[i]);
+						
+					}
+				}else {
+					console.log("Array vacio");						
+				}
+				
+			}
+				    					
+		});
+		var state_backup;
+		function validarMarker(id) {
+			// body...
+			$('.tipos_markers input').removeClass('selected');
+			$('#'+id).addClass('selected');
+			//map.removeLayer();
+			state_backup = id;
+
+			if (id == "all") {
+				var elements = document.getElementById('genera_grafico');
+				show(elements);
+			}else {
+				var elements = document.getElementById('genera_grafico');
+				hide(elements);
+			}
+			if (!$.isEmptyObject(arrayCheck)) {
+				setupDataGroupMarkers(arrayCheck, id);
+			}else{
+				setupDataGeojsonValue(id);
+			}
+			
+		}
+
+		function generarGrafico() {
+			// body...
+		    var state = state_backup;
+		    var param1 = arrayCheck[0];
+			var param2 = arrayCheck[1];
+			var param3 = arrayCheck[2];
+			console.log(state);
+			
+			var elements = document.getElementById('grafico');
+			mostrar(elements);
+			
+			// Load the Visualization API and the piechart package.
+		    google.charts.load('visualization', '1.0', 
+	     		{ 'packages': ['bar'], callback: drawChart });
+		   
+		}
+
+		function drawChart() { 
+			var jsonData = $.ajax({
+		          url: "http://127.0.0.1:5000/api/tweets/data_graphics",
+		          dataType: "json",
+		          async: false
+		      	}).responseText;
+			console.log("drawChart " +jsonData);
+
+			var data = new google.visualization.DataTable(jsonData);
+
+	     	var options = {
+	          chart: {
+	            title: 'Grafico Turistico',
+	            subtitle: 'comparacion de tweets para todos los estados analizados',
+	          },
+	          bars: 'horizontal', // Required for Material Bar Charts.
+	          hAxis: {format: 'decimal'},
+	          height: 550,
+	          width: 490,
+	          colors: ['#00c853', '#00b0ff', '#ff3d00'],
+	          series: {
+	            0: { axis: 'tweets' }, // Bind series 0 to an axis named 'distance'.
+	          },
+	          axes: {
+	            x: {
+	              tweets: {label: 'No. Tweets'}, // Bottom x-axis.
+	              
+	            }
+	          }
+	        };
+	        var chart = new google.charts.Bar(document.getElementById('columnchart'));
+
+	        chart.draw(data, options);
+
+		}
+
+		function mostrar(elements) {
+			// body...
+			$('#col_map').removeClass('col-lg-12');
+			$('#col_map').addClass('col-lg-7');
+			show(elements);
+
+		}
+
+		function show (elements, specifiedDisplay) {
+			  elements = elements.length ? elements : [elements];
+			  for (var index = 0; index < elements.length; index++) {
+			    elements[index].style.display = specifiedDisplay || 'block';
+			  }
+		}
+
+		function closeDiv() {
+			// body...
+			hide(document.getElementById('grafico'));
+			$('#col_map').removeClass('col-lg-7');
+			$('#col_map').addClass('col-lg-12');
+
+		}
+
+		function hide (elements) {
+			  elements = elements.length ? elements : [elements];
+			  for (var index = 0; index < elements.length; index++) {
+			    elements[index].style.display = 'none';
+			  }
+		}
+
+		function setupDataGeojsonValue(value) {
+			// body...
+			
+			console.log('http://127.0.0.1:5000/api/tweets/param?option_state='+value);
+			geojson.clearLayers();
+			$.ajax({
+				dataType:'json',
+				url:'http://127.0.0.1:5000/api/tweets/param',
+				data: {option_state: value},
+				success: function(response) {	
+					// body...
+					
+					$(response.features).each(function(key, data) {
+										// body...
+						
+						
+						var address = data['address'];
+						var properties = data['properties_text'];
+						new_data = {
+							"type": "Feature",
+							"geometry": {
+								"type": "Point",
+								"coordinates": address['coordinates']
+							},
+							"polarity": properties['sentiment'],
+							"text": properties['text'],
+							"created_at": properties['created_at']
+						};
+						
+						format_data = new_data;
+						geojson.addData(format_data);
+						
+						
+
+					});
+				}
+			}).error(function() {});
+			
+
+		}
+
+		function setupDataGroupMarkers(group_marker, state) {
+			// body...
+			var data;
+			geojson.clearLayers();
+			if (arrayCheck.length > 1) {
+				var opt1 = arrayCheck[0];
+					opt2 = arrayCheck[1];	
+
+				data = {
+						option_state: state,
+						param1: opt1,
+						param2: opt2
+				};
+			}else {
+				data = {
+					option_state: state, 
+					param1: arrayCheck[0]
+				};
+			}
+			
+			$.ajax({
+				dataType:'json',
+				url:'http://127.0.0.1:5000/api/tweets/param',
+				data: data,
+				success: function(response) {	
+					
+					$(response.features).each(function(key, data) {
+						// body...
+						var address = data['address'];
+						var properties = data['properties_text'];
+						new_data = {
+							"type": "Feature",
+							"geometry": {
+								"type": "Point",
+								"coordinates": address['coordinates']
+							},
+							"polarity": properties['sentiment'],
+							"text": properties['text'],
+							"created_at": properties['created_at']
+						};
+						
+						format_data = new_data;
+						geojson.addData(format_data);
+						
+					});
+				}
+			}).error(function() {});
+		}
+		
+		// Add the tiles to the map, and initialise the view in the middle of Europe
+		map.addLayer(mytiles).setView([19.364591, -99.083078], 6);
+	</script>
+	
+	
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
+	
+</body>
+</html>
