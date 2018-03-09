@@ -1,8 +1,11 @@
-# Proyecto Terminal UAM
+# Proyecto Terminal UAM    `![texto cualquiera por si no carga la imagen](http://www.cua.uam.mx/images/original/742d2ec0f59b02a03c8d9d408c1c3795.png)`
  
-=======
+`![texto cualquiera por si no carga la imagen](http://dcni.cua.uam.mx/img/Logo_LIC.jpg)`
+ 
+Repositorio donde se contiene la informacion y código de mi proyecto terminal para la carrera de Ingeniería en Computación de la Universidad Autónoma Metropolitana unidad Cuajimalpa.
 
-Este proyecto consiste en el desarrollo de una aplicacion donde se pueda hacer un analsis del sentimiento que tuvieron
-algunos turistas con respecto a nuestro país. Obteniendo la información desde twitter.
-
-=======
+## Tabla de contenido
+- [Resumen](#resumen).
+- [Introducción](#introduccion).
+- [Desarrollo](#desarrollo).
+	- [Metodología](#metodologia).
