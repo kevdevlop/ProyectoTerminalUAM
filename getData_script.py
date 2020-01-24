@@ -1,5 +1,6 @@
 import json
 import sys
+import os
 from pymongo import MongoClient
 import tweepy
 from textblob import TextBlob
@@ -10,10 +11,10 @@ query = sys.argv[1]
 f_name = 'tweets_data4.json'
 max_tweets=sys.argv[2]
 
-CONSUMER_KEY = "yM0E6ME1FGrl7X9rMnarbYyzi"
-CONSUMER_SECRET = "5WCL1APMB9btcOnRWGfb0sjuXlsINXiIVBUr9BnhsdD0FWSudi"
-ACCESS_TOKEN = "2330590344-HDL1ZarQBBKuWy0KVuAS19GTUqIOq2tSdQBABJ5"
-ACCESS_TOKEN_SECRET = "IwX4Zt1MSjQCmQ6TFQneJCN54C0Frs2wCm88oA76cUnWj"
+CONSUMER_KEY = os.environ['CONSUMER_KEY']
+CONSUMER_SECRET = os.environ['CONSUMER_SECRET']
+ACCESS_TOKEN = os.environ['ACCESS_TOKEN']
+ACCESS_TOKEN_SECRET = os.environ['ACCESS_TOKEN_SECRET']
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 api = tweepy.API(auth)
